@@ -1,6 +1,6 @@
 {
   "required": true,
-  "package": "com.example.saturnwither.mixin",
+  "package": "com.example.addon.mixin",
   "compatibilityLevel": "JAVA_21",
   "client": [
     "ExampleMixin"

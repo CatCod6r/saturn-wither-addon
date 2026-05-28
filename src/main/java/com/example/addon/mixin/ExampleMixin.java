@@ -1,6 +1,6 @@
-package com.example.saturnwither.mixin;
+package com.example.addon.mixin;
 
-import com.example.saturnwither.SaturnWitherAddon;
+import com.example.addon.AddonTemplate;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.RunArgs;
 import org.spongepowered.asm.mixin.Mixin;
@@ -26,6 +26,6 @@ public abstract class ExampleMixin {
      */
     @Inject(method = "<init>", at = @At("TAIL"))
     private void onGameLoaded(RunArgs args, CallbackInfo ci) {
-        SaturnWitherAddon.LOG.info("Hello from ExampleMixin!");
+        AddonTemplate.LOG.info("Hello from ExampleMixin!");
     }
 }

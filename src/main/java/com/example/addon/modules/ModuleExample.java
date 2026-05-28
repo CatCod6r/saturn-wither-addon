@@ -1,6 +1,6 @@
-package com.example.saturnwither.modules;
+package com.example.addon.modules;
 
-import com.example.saturnwither.SaturnWitherAddon;
+import com.example.addon.AddonTemplate;
 import meteordevelopment.meteorclient.events.render.Render3DEvent;
 import meteordevelopment.meteorclient.renderer.ShapeMode;
 import meteordevelopment.meteorclient.settings.ColorSetting;
@@ -43,12 +43,12 @@ public class ModuleExample extends Module {
      * The {@code name} parameter should be in kebab-case.
      */
     public ModuleExample() {
-        super(SaturnWitherAddon.CATEGORY, "world-origin", "An example module that highlights the center of the world.");
+        super(AddonTemplate.CATEGORY, "world-origin", "An example module that highlights the center of the world.");
     }
 
     /**
      * Example event handling method.
-     * Requires {@link SaturnWitherAddon#getPackage()} to be setup correctly, otherwise the game will crash whenever the module is enabled.
+     * Requires {@link AddonTemplate#getPackage()} to be setup correctly, otherwise the game will crash whenever the module is enabled.
      */
     @EventHandler
     private void onRender3d(Render3DEvent event) {

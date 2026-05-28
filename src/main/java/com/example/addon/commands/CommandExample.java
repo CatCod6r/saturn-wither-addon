@@ -1,4 +1,4 @@
-package com.example.saturnwither.commands;
+package com.example.addon.commands;
 
 import com.mojang.brigadier.arguments.StringArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
