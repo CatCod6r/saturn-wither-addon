@@ -1,14 +1,15 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "saturn-wither-bore",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
+  "name": "Saturn Wither Bore",
+  "description": "An addon that allows you to break blocks with Withers",
   "authors": [
-    "seasnail"
+    "xpmcll",
+    "Vulgur"
   ],
   "contact": {
-    "repo": "https://github.com/MeteorDevelopment/meteor-addon-template"
+    "repo": "https://github.com/CatCod6r/saturn-wither-addon"
   },
   "icon": "assets/template/icon.png",
   "environment": "client",
