@@ -40,6 +40,13 @@ public class WitherBore extends Module {
         .build()
     );
 
+    private final Setting<Boolean> silentRotations = sgGeneral.add(new BoolSetting.Builder()
+        .name("silent-rotations")
+        .description("Rotate silently on the server without shaking your client camera.")
+        .defaultValue(true)
+        .build()
+    );
+
     private final Setting<Boolean> mineVerticalObstacles = sgGeneral.add(new BoolSetting.Builder()
         .name("mine-obstacles")
         .description("Break blocks manually if they're in the way")
@@ -144,6 +151,9 @@ public class WitherBore extends Module {
     private Direction miningFace = null;
     private boolean enteredPhase2 = false;
 
+    // Track silent simulation angles so fallback algorithms can read last intended state
+    private float serverYaw = 0f;
+
     public WitherBore() {
         super(AddonTemplate.CATEGORY, "wither-bore", "Breaks blocks using withers");
     }
@@ -156,6 +166,9 @@ public class WitherBore extends Module {
             info("Automatically enabled ElytraFly.");
         }
         boreDir = null;
+        if (mc.player != null) {
+            serverYaw = mc.player.getYaw();
+        }
     }
 
     @Override
@@ -331,7 +344,11 @@ public class WitherBore extends Module {
         if (dy > 0.5) {
             float climbPitch = (float) -Math.toDegrees(Math.atan2(dy, Math.max(0.5, horizDist)));
             climbPitch = Math.max(climbPitch, -55f);
-            mc.player.setPitch(climbPitch);
+            if (silentRotations.get()) {
+                Rotations.rotate(serverYaw, climbPitch, 10, null);
+            } else {
+                mc.player.setPitch(climbPitch);
+            }
         }
 
         setKey(mc.options.forwardKey, true);
@@ -364,7 +381,11 @@ public class WitherBore extends Module {
         }
 
         if (mc.player.getY() > flyY + 1.0) {
-            mc.player.setPitch(80f);
+            if (silentRotations.get()) {
+                Rotations.rotate(serverYaw, 80f, 10, null);
+            } else {
+                mc.player.setPitch(80f);
+            }
             setKey(mc.options.forwardKey, true);
             setKey(mc.options.sneakKey, true); // ElytraFly: descend
             setKey(mc.options.jumpKey, false);
@@ -469,8 +490,14 @@ public class WitherBore extends Module {
 
         Vec3d faceVec = Vec3d.of(boreDir.getVector());
         float yaw = (float) Math.toDegrees(Math.atan2(faceVec.z, faceVec.x)) - 90.0f;
-        mc.player.setYaw(yaw);
-        mc.player.setPitch(-20f);
+
+        serverYaw = yaw;
+        if (silentRotations.get()) {
+            Rotations.rotate(yaw, -20f, 10, null);
+        } else {
+            mc.player.setYaw(yaw);
+            mc.player.setPitch(-20f);
+        }
 
         double dy = flyY - mc.player.getY();
         setKey(mc.options.jumpKey, dy >  0.3);
@@ -588,8 +615,14 @@ public class WitherBore extends Module {
         float yaw = (float) Math.toDegrees(Math.atan2(n.z, n.x)) - 90.0f;
         double horiz = Math.sqrt(n.x * n.x + n.z * n.z);
         float pitch = (float) -Math.toDegrees(Math.atan2(n.y, horiz));
-        mc.player.setYaw(yaw);
-        mc.player.setPitch(pitch);
+
+        serverYaw = yaw;
+        if (silentRotations.get()) {
+            Rotations.rotate(yaw, pitch, 10, null);
+        } else {
+            mc.player.setYaw(yaw);
+            mc.player.setPitch(pitch);
+        }
     }
 
     private boolean scanSide(BlockPos origin, Direction side) {
@@ -617,7 +650,7 @@ public class WitherBore extends Module {
             }
         }
         if (best != null) return best;
-        return horizontalFromYaw(mc.player.getYaw());
+        return horizontalFromYaw(serverYaw);
     }
 
     private Direction horizontalFromYaw(float yaw) {
@@ -654,7 +687,18 @@ public class WitherBore extends Module {
     private void flyTowardBlock(BlockPos target, double flyY) {
         Vec3d targetPos = new Vec3d(target.getX() + 0.5, flyY, target.getZ() + 0.5);
         Vec3d toTarget = targetPos.subtract(mc.player.getPos());
-        faceVector(toTarget);
+
+        float yaw = (float) Math.toDegrees(Math.atan2(toTarget.z, toTarget.x)) - 90.0f;
+        double horiz = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
+        float pitch = (float) -Math.toDegrees(Math.atan2(toTarget.y, horiz));
+
+        serverYaw = yaw;
+        if (silentRotations.get()) {
+            Rotations.rotate(yaw, pitch, 10, null);
+        } else {
+            mc.player.setYaw(yaw);
+            mc.player.setPitch(pitch);
+        }
 
         double dy = flyY - mc.player.getY();
         setKey(mc.options.forwardKey, true);
