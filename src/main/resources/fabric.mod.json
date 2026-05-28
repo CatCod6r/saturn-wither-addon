@@ -1,24 +1,24 @@
 {
   "schemaVersion": 1,
-  "id": "addon-template",
+  "id": "saturn-wither-addon",
   "version": "${version}",
-  "name": "Addon Template",
-  "description": "An addon template for Meteor Client addons.",
+  "name": "Saturn Wither Addon",
+  "description": "A custom Meteor Client addon.",
   "authors": [
     "seasnail"
   ],
   "contact": {
     "repo": "https://github.com/MeteorDevelopment/meteor-addon-template"
   },
-  "icon": "assets/template/icon.png",
+  "icon": "assets/saturnwither/icon.png",
   "environment": "client",
   "entrypoints": {
     "meteor": [
-      "com.example.addon.AddonTemplate"
+      "com.example.saturnwither.SaturnWitherAddon"
     ]
   },
   "mixins": [
-    "addon-template.mixins.json"
+    "saturn-wither-addon.mixins.json"
   ],
   "custom": {
     "meteor-client:color": "225,25,25"
