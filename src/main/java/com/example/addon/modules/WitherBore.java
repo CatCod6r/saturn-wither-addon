@@ -144,6 +144,20 @@ public class WitherBore extends Module {
         .build()
     );
 
+    private final Setting<Boolean> axisLock = sgPathfind.add(new BoolSetting.Builder()
+        .name("axis-lock")
+        .description("Permanently locks client crosshair horizontally onto the closest snapped grid direction.")
+        .defaultValue(true)
+        .build()
+    );
+
+    private final Setting<Boolean> lockDiagonals = sgPathfind.add(new BoolSetting.Builder()
+        .name("lock-diagonals")
+        .description("Include diagonal 45-degree angle snaps inside the visible crosshair axis lock.")
+        .defaultValue(true)
+        .build()
+    );
+
     private static final int LOOKAHEAD_BLOCKS  = 3;
     private static final double BORE_SPEED_FACTOR = 0.5;
     private Direction boreDir = null;
@@ -151,7 +165,6 @@ public class WitherBore extends Module {
     private Direction miningFace = null;
     private boolean enteredPhase2 = false;
 
-    // Track silent simulation angles so fallback algorithms can read last intended state
     private float serverYaw = 0f;
 
     public WitherBore() {
@@ -332,7 +345,6 @@ public class WitherBore extends Module {
             setKey(mc.options.backKey, false);
             setKey(mc.options.leftKey, false);
             setKey(mc.options.rightKey, false);
-            // Maintain altitude offset
             setKey(mc.options.jumpKey,  dy >  0.3);
             setKey(mc.options.sneakKey, dy < -0.5);
             return;
@@ -387,7 +399,7 @@ public class WitherBore extends Module {
                 mc.player.setPitch(80f);
             }
             setKey(mc.options.forwardKey, true);
-            setKey(mc.options.sneakKey, true); // ElytraFly: descend
+            setKey(mc.options.sneakKey, true);
             setKey(mc.options.jumpKey, false);
             setKey(mc.options.leftKey, false);
             setKey(mc.options.rightKey, false);
@@ -491,6 +503,19 @@ public class WitherBore extends Module {
         Vec3d faceVec = Vec3d.of(boreDir.getVector());
         float yaw = (float) Math.toDegrees(Math.atan2(faceVec.z, faceVec.x)) - 90.0f;
 
+        if (axisLock.get()) {
+            float normalizedYaw = ((yaw % 360f) + 360f) % 360f;
+            float step = lockDiagonals.get() ? 45f : 90f;
+            float snappedYaw = Math.round(normalizedYaw / step) * step;
+            float diff = snappedYaw - normalizedYaw;
+            if (diff > 180f) diff -= 360f;
+            if (diff < -180f) diff += 360f;
+            yaw = yaw + diff;
+
+            // Permanent visible client lock
+            mc.player.setYaw(yaw);
+        }
+
         serverYaw = yaw;
         if (silentRotations.get()) {
             Rotations.rotate(yaw, -20f, 10, null);
@@ -554,7 +579,7 @@ public class WitherBore extends Module {
                 obstruction = check;
                 face = Direction.DOWN;
             }
-        } else { //wantDown
+        } else {
             int x = (int) Math.floor(mc.player.getX());
             int z = (int) Math.floor(mc.player.getZ());
             int y = (int) Math.floor(bb.minY - 0.05);
@@ -615,6 +640,19 @@ public class WitherBore extends Module {
         float yaw = (float) Math.toDegrees(Math.atan2(n.z, n.x)) - 90.0f;
         double horiz = Math.sqrt(n.x * n.x + n.z * n.z);
         float pitch = (float) -Math.toDegrees(Math.atan2(n.y, horiz));
+
+        if (axisLock.get()) {
+            float normalizedYaw = ((yaw % 360f) + 360f) % 360f;
+            float step = lockDiagonals.get() ? 45f : 90f;
+            float snappedYaw = Math.round(normalizedYaw / step) * step;
+            float diff = snappedYaw - normalizedYaw;
+            if (diff > 180f) diff -= 360f;
+            if (diff < -180f) diff += 360f;
+            yaw = yaw + diff;
+
+            // Permanent visible horizontal client lock
+            mc.player.setYaw(yaw);
+        }
 
         serverYaw = yaw;
         if (silentRotations.get()) {
@@ -692,6 +730,19 @@ public class WitherBore extends Module {
         double horiz = Math.sqrt(toTarget.x * toTarget.x + toTarget.z * toTarget.z);
         float pitch = (float) -Math.toDegrees(Math.atan2(toTarget.y, horiz));
 
+        if (axisLock.get()) {
+            float normalizedYaw = ((yaw % 360f) + 360f) % 360f;
+            float step = lockDiagonals.get() ? 45f : 90f;
+            float snappedYaw = Math.round(normalizedYaw / step) * step;
+            float diff = snappedYaw - normalizedYaw;
+            if (diff > 180f) diff -= 360f;
+            if (diff < -180f) diff += 360f;
+            yaw = yaw + diff;
+
+            // Permanent visible horizontal client lock
+            mc.player.setYaw(yaw);
+        }
+
         serverYaw = yaw;
         if (silentRotations.get()) {
             Rotations.rotate(yaw, pitch, 10, null);
@@ -739,7 +790,6 @@ public class WitherBore extends Module {
         return id.getPath().equals("elytra");
     }
 
-    // weapon manager
     private int findBestWeaponHotbarSlot() {
         int bestSlot = -1;
         double bestScore = -1.0;
