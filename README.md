@@ -2,7 +2,7 @@
 Break blocks with withers
 
 ## Prerequisites
-1. Make sure you have enough egaps on you and in your hand
+1. Make sure you have enough egaps on you and in your hotbar
 2. Enable AutoEat + AutoGap so you stay healthy :D
 3. Have ElytraFly enabled.
 4. Have both an empty hand and a sword in your hotbar
